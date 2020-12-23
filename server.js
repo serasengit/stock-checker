@@ -18,7 +18,7 @@ app.use(express.static("./dist/stock-checker"));
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 // Schedule tasks to be run on the server.
-cron.schedule("*/30 * * * * *", async function () {
+cron.schedule("*/15 * * * * *", async function () {
   const availableProducts = await websiteService.getPage(
     process.env.STOCK_URL ||
       "https://www.pccomponentes.com/buscar/?query=rtx+3080"
