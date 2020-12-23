@@ -17,8 +17,7 @@ app.use(express.static("./dist/stock-checker"));
 
 // Schedule tasks to be run on the server.
 cron.schedule("*/60 * * * * *", function () {
-  console.log("running a task every minute");
-  const mail = websiteService.getPage(
+  websiteService.getPage(
     process.env.STOCK_URL ||
       "https://www.pccomponentes.com/buscar/?query=GeForce+RTX+3080"
   );
