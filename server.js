@@ -21,12 +21,14 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 cron.schedule("*/30 * * * * *", async function () {
   const availableProducts = await websiteService.getPage(
     process.env.STOCK_URL ||
-      "https://www.pccomponentes.com/buscar/?query=rtx+3090"
+      "https://www.pccomponentes.com/buscar/?query=rtx+3080"
   );
-  console.log(
-    !availableProducts.length > 0
-      ? "No hay productos disponibles"
-      : "Los productos disponibles son: " + JSON.stringify(availableProducts)
-  );
-  if (availableProducts.length > 0) emailService.send_email(availableProducts);
+  if (availableProducts.length > 0) {
+    console.log(
+      "Los productos disponibles son: " + JSON.stringify(availableProducts)
+    );
+    emailService.send_email(availableProducts);
+  } else {
+    console.log("No hay productos disponibles");
+  }
 });
