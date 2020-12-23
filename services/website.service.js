@@ -3,15 +3,11 @@ const cheerio = require("cheerio");
 const fs = require("fs");
 const axios = require("axios").default;
 
-exports.getPage = async function (url) {
+exports.getPage = async function getPage(url) {
   try {
     const res = await axios.get(url);
     const availableProducts = getAvailableProducts(res.data);
-    console.log(
-      !availableProducts.length > 0
-        ? "No hay productos disponibles"
-        : "Los productos disponibles son: " + JSON.stringify(availableProducts)
-    );
+    return availableProducts;
   } catch {
     console.error(
       `ERROR: An error occurred while trying to fetch the URL: ${url}`
