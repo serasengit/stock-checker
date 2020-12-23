@@ -9,8 +9,8 @@ exports.getPage = async function (url) {
     const availableProducts = getAvailableProducts(res.data);
     console.log(
       !availableProducts.length > 0
-        ? "No hay productos disponibles" + availableProducts
-        : "Los productos disponibles son: " + availableProducts
+        ? "No hay productos disponibles"
+        : "Los productos disponibles son: " + JSON.stringify(availableProducts)
     );
   } catch {
     console.error(
