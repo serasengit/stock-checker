@@ -38,7 +38,7 @@ function getAvailableProducts(html) {
       )
         price = productInfo.lastChild.lastChild.lastChild.data;
     });
-    if (isAvailable && Number(price)<= 850) availableProducts.push({ title, price, isAvailable, url });
+    if (isAvailable && Number(price.replace('€',''))<= 850) availableProducts.push({ title, price, isAvailable, url });
   });
 
   return availableProducts;
