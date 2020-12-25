@@ -44,7 +44,7 @@ function parseStockProducts(availableProducts) {
   return availableProducts.map((availableProducts) => {
     return {
       website_name: PC_COMPONENTES,
-      product_searching: RTX_3080,
+      product_searching: STOCK_PRODUCT_NAME,
       product_name: availableProducts.title,
       product_price: availableProducts.price,
       url: availableProducts.url,
