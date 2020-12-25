@@ -1,0 +1,4 @@
+#Migrations creation
+knex migrate:make create_config_table
+#Migrations execution
+knex migrate:latest

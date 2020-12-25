@@ -1,30 +1,31 @@
 // Update with your config settings.
-const pg = require('pg')
-pg.defaults.ssl = true
+const pg = require("pg");
+pg.defaults.ssl = true;
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 module.exports = {
   //Delete in Production
   development: {
-    client: 'pg',
-    connection: 'postgres://piimsvoaqonvxv:b72567ec1e423469edf0d28f0d5c2dd788aba8b2c6e1b55b1bcff93e1166f0c4@ec2-79-125-4-96.eu-west-1.compute.amazonaws.com:5432/d2ce193kkru3b3?ssl=true',
+    client: "pg",
+    connection:
+      "postgres://ufyewvipnwixut:fc7d9cc077e651b257cb0f0868fb9665f98562368968c7cde30955914001eb3f@ec2-46-137-100-204.eu-west-1.compute.amazonaws.com:5432/d2i4rn6mt6e1af?ssl=true",
     migrations: {
-      directory: 'db/knex/migrations',
+      directory: "db/knex/migrations",
     },
     seeds: {
-      directory: 'db/knex/seeds'
+      directory: "db/knex/seeds",
     },
-    ssl: true
+    ssl: true,
   },
   production: {
-    client: 'pg',
+    client: "pg",
     connection: process.env.DATABASE_URL_SSL_TRUE,
     migrations: {
-      directory: 'db/knex/migrations',
+      directory: "db/knex/migrations",
     },
     seeds: {
-      directory: 'db/knex/seeds'
+      directory: "db/knex/seeds",
     },
-    ssl: true
-  }
-
+    ssl: true,
+  },
 };
