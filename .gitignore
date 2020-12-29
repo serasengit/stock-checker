@@ -2,3 +2,9 @@ node_modules/
 package-lock.json
 .eslintrc.json
 .vscode/launch.json
+db/knex/seeds/01-config.js
+db/knex/seeds/01-email-config.js
+db/knex/seeds/02-website.js
+db/knex/seeds/03-stock-searching.js
+db/knex/seeds/01-email-config.js
+order.png

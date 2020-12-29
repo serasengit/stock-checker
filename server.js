@@ -16,4 +16,4 @@ app.use(express.static("./dist/stock-checker"));
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 // Cron processes execution
-PCComponentesCron.execute("*/15 * * * * *");
+PCComponentesCron.execute();

@@ -1,0 +1,4 @@
+#Seeds creation
+knex seed:make 01-website-config  
+#Seeds execution
+knex seed:run --env=development

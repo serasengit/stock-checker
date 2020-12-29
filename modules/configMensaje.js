@@ -1,5 +1,11 @@
 const nodemailer = require("nodemailer");
-module.exports = function (emailAdress, emailPass, availableProducts) {
+exports.buildMail = function buildMail(
+  emailAdress,
+  emailPass,
+  subject,
+  body,
+  attachments
+) {
   this.transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -7,21 +13,30 @@ module.exports = function (emailAdress, emailPass, availableProducts) {
       pass: emailPass,
     },
   });
-  let html =
-    "<strong>HAY STOCK DISPONIBLE DE LOS SIGUIENTES PRODUCTOS: </strong><br/><br/>";
-  availableProducts.forEach((availableProduct) => {
-    html +=
-      "<ul><li><strong>Product:</strong> " + availableProduct.title + "</li>";
-    html += "<li><strong>Price:</strong> " + availableProduct.price + "</li>";
-    html +=
-      "<li><strong>URL:</strong> " +
-      availableProduct.url +
-      "</li></ul><br/><br/>";
-  });
+  const html = body;
   this.mailOptions = {
     from: emailAdress,
     to: emailAdress,
-    subject: "PC COMPONENTES STOCK",
+    subject,
     html,
+    attachments,
   };
+};
+
+exports.getStockProductsEmailBody = function getStockProductsEmailBody(
+  stockProducts
+) {
+  let html =
+    "<strong>HAY STOCK DISPONIBLE DE LOS SIGUIENTES PRODUCTOS: </strong><br/><br/>";
+  stockProducts.forEach((stockProduct) => {
+    html +=
+      "<ul><li><strong>Product:</strong> " +
+      stockProduct.product_name +
+      "</li>";
+    html +=
+      "<li><strong>Price:</strong> " + stockProduct.product_price + "</li>";
+    html +=
+      "<li><strong>URL:</strong> " + stockProduct.url + "</li></ul><br/><br/>";
+  });
+  return html;
 };

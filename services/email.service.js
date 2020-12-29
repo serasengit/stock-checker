@@ -1,34 +1,47 @@
-// Import configMensage module
+const configService = require("../services/config.service.js");
 const configMensaje = require("../modules/configMensaje");
-const Config = require("../db/models/config");
+const fs = require("fs");
 
-// Send an email.
-exports.send_email = async function (availableProducts) {
+async function sendEmail(mail) {
   try {
-    const emailAddress = await Config.query().where("clave", "email");
-    if (emailAddress && emailAddress[0]) {
-      const emailPass = await Config.query().where("clave", "email_pass");
-      if (emailPass && emailPass[0]) {
-        const mail = new configMensaje(
-          emailAddress[0].value,
-          emailPass[0].value,
-          availableProducts
-        );
-
-        mail.transporter.sendMail(mail.mailOptions, function (err, info) {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log("Email was sent succesfully!");
-          }
-        });
+    mail.transporter.sendMail(mail.mailOptions, function (err, info) {
+      if (err) {
+        console.log(err);
       } else {
-        console.log("There was a problem trying to get the receiver data!");
+        console.log("Email was sent succesfully!");
       }
-    } else {
-      console.log("There was a problem trying to get the receiver data!");
-    }
+    });
   } catch (err) {
     console.log(err);
   }
+}
+
+exports.sendStockProductsEmail = async function (subject, stockProducts) {
+  const emailAddress = await configService.findByClave("email");
+  const emailPass = await configService.findByClave("email_pass");
+  const mail = new configMensaje.buildMail(
+    emailAddress[0].value,
+    emailPass[0].value,
+    subject,
+    configMensaje.getStockProductsEmailBody(stockProducts)
+  );
+  sendEmail(mail);
+};
+
+exports.sendOrderedProductEmail = async function (subject, orderConfirmation) {
+  const emailAddress = await configService.findByClave("email");
+  const emailPass = await configService.findByClave("email_pass");
+  const mail = new configMensaje.buildMail(
+    emailAddress[0].value,
+    emailPass[0].value,
+    subject,
+    null,
+    [
+      {
+        filename: "orderConfirmation.jpg",
+        content: orderConfirmation,
+      },
+    ]
+  );
+  sendEmail(mail);
 };
