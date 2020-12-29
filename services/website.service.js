@@ -36,7 +36,9 @@ exports.buyStockProduct = async function buyStockProduct(url, website) {
 async function buyPCComponentesAvailableProducts(url) {
   var orderConfirmation;
 
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
   const page = await browser.newPage();
   //Login
   await page.goto("https://www.pccomponentes.com/login", { timeout: 0 });
