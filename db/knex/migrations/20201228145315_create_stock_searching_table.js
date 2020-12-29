@@ -9,6 +9,8 @@ exports.up = function (knex, Promise) {
       .onDelete("cascade");
     table.string("product_searching").notNullable();
     table.string("url").notNullable();
+    table.float("price_limit");
+    table.string("product_filter_key");
     table.string("cron_pattern").notNullable();
     table.boolean("is_active").notNullable();
     table.timestamp("created_at").defaultTo(knex.fn.now());

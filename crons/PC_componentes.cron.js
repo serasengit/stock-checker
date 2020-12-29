@@ -45,7 +45,7 @@ exports.execute = async function execute() {
               stockSearching.id
             );
             if (
-              lastAvailableProducts.slength === 0 ||
+              lastAvailableProducts.length === 0 ||
               (lastAvailableProducts.length > 0 &&
                 stockProducts.toString() !== lastAvailableProducts.toString())
             ) {
@@ -65,8 +65,14 @@ exports.execute = async function execute() {
                       .replace("€", "")
                   );
                   if (
-                    productPrice <= 870 &&
-                    productToOrder.product_name.includes("RTX 3080")
+                    (!stockSearching.price_limit ||
+                      (stockSearching.price_limit &&
+                        productPrice <= stockSearching.price_limit)) &&
+                    (!stockSearching.product_filter_key ||
+                      (stockSearching.product_filter_key &&
+                        productToOrder.product_name.includes(
+                          stockSearching.product_filter_key
+                        )))
                   ) {
                     const orderConfirmation = await websiteService.buyStockProduct(
                       productToOrder.url,
