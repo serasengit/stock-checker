@@ -45,7 +45,7 @@ exports.execute = async function execute() {
               stockSearching.id
             );
             if (
-              lastAvailableProducts.length === 0 ||
+              lastAvailableProducts.slength === 0 ||
               (lastAvailableProducts.length > 0 &&
                 stockProducts.toString() !== lastAvailableProducts.toString())
             ) {
