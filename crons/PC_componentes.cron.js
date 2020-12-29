@@ -64,7 +64,10 @@ exports.execute = async function execute() {
                       .replace(",", ".")
                       .replace("€", "")
                   );
-                  if (productPrice <= 870) {
+                  if (
+                    productPrice <= 870 &&
+                    productToOrder.product_name.includes("RTX 3080")
+                  ) {
                     const orderConfirmation = await websiteService.buyStockProduct(
                       productToOrder.url,
                       stockSearching.website.name
