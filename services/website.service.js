@@ -102,7 +102,8 @@ function getPCComponentesAvailableProducts(html) {
       }
       if (
         productInfo.attribs.class.includes("c-product-card__availability") &&
-        !productInfo.attribs.class.includes("disponibilidad-nula")
+        (productInfo.attribs.class.includes("disponibilidad-inmediata") ||
+          productInfo.attribs.class.includes("disponibilidad-moderada"))
       )
         isAvailable = true;
       if (
