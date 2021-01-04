@@ -33,6 +33,7 @@ exports.buyStockProduct = async function buyStockProduct(url, website) {
           //availableProducts = buyAmazonSpainAvailableProducts(url);
           break;
       }
+      errTimes = 0;
     } catch (err) {
       errTimes++;
       console.log(err + " :: Time" + errTimes);
