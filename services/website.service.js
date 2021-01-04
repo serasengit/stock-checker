@@ -23,8 +23,8 @@ exports.getPage = async function getPage(url, website) {
 exports.buyStockProduct = async function buyStockProduct(url, website) {
   var orderConfirmation;
   let errTimes = 0;
-  try {
-    do {
+  do {
+    try {
       switch (website) {
         case PC_COMPONENTES:
           orderConfirmation = await buyPCComponentesAvailableProducts(url);
@@ -33,11 +33,12 @@ exports.buyStockProduct = async function buyStockProduct(url, website) {
           //availableProducts = buyAmazonSpainAvailableProducts(url);
           break;
       }
-    } while (errTimes < 20 && errTimes > 0);
-  } catch (err) {
-    errTimes++;
-    console.log(err + " :: Time" + errTimes);
-  }
+    } catch (err) {
+      errTimes++;
+      console.log(err + " :: Time" + errTimes);
+    }
+  } while (errTimes < 20 && errTimes > 0);
+
   return orderConfirmation;
 };
 
