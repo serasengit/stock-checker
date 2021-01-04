@@ -22,20 +22,27 @@ exports.getPage = async function getPage(url, website) {
 
 exports.buyStockProduct = async function buyStockProduct(url, website) {
   var orderConfirmation;
-  switch (website) {
-    case PC_COMPONENTES:
-      orderConfirmation = await buyPCComponentesAvailableProducts(url);
-      break;
-    case AMAZON_SPAIN:
-      //availableProducts = buyAmazonSpainAvailableProducts(url);
-      break;
+  let errTimes = 0;
+  try {
+    do {
+      switch (website) {
+        case PC_COMPONENTES:
+          orderConfirmation = await buyPCComponentesAvailableProducts(url);
+          break;
+        case AMAZON_SPAIN:
+          //availableProducts = buyAmazonSpainAvailableProducts(url);
+          break;
+      }
+    } while (errTimes < 20 && errTimes >= 0);
+  } catch (err) {
+    errTimes++;
+    console.log(err + " :: Time" + errTimes);
   }
   return orderConfirmation;
 };
 
 async function buyPCComponentesAvailableProducts(url) {
   var orderConfirmation;
-
   const browser = await puppeteer.launch({
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
@@ -48,7 +55,6 @@ async function buyPCComponentesAvailableProducts(url) {
   const pcComponentesPass = await configService.findByClave(
     "pc_componentes_pass"
   );
-
   await page.type("input[name=username]", pcComponentesUser[0].value);
   await page.type("input[name=password]", pcComponentesPass[0].value);
   await page.click("button[data-cy=log-in]");
@@ -63,7 +69,6 @@ async function buyPCComponentesAvailableProducts(url) {
   console.log("Botón de compra");
   await page.waitForTimeout(3000);
   console.log("Botón de compra ::: Click");
-
   await page.waitForSelector("#GTM-carrito-finalizarCompra", {
     visible: true,
     timeout: 0,
