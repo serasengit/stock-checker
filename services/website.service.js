@@ -33,7 +33,7 @@ exports.buyStockProduct = async function buyStockProduct(url, website) {
           //availableProducts = buyAmazonSpainAvailableProducts(url);
           break;
       }
-    } while (errTimes < 20 && errTimes >= 0);
+    } while (errTimes < 20 && errTimes > 0);
   } catch (err) {
     errTimes++;
     console.log(err + " :: Time" + errTimes);
