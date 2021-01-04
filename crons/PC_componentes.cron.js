@@ -47,7 +47,8 @@ exports.execute = async function execute() {
             if (
               lastAvailableProducts.length === 0 ||
               (lastAvailableProducts.length > 0 &&
-                stockProducts.toString() !== lastAvailableProducts.toString())
+                JSON.stringify(stockProducts) !==
+                  JSON.stringify(lastAvailableProducts))
             ) {
               try {
                 setIsNotifiedStockProducts(stockProducts, true);
@@ -118,11 +119,10 @@ function setIsNotifiedStockProducts(stockProducts, isNotified) {
 function parseStockProducts(availableProducts, stockSearchingId) {
   return availableProducts.map((availableProducts) => {
     return {
-      product_searching_id: stockSearchingId,
       product_name: availableProducts.title,
       product_price: availableProducts.price,
+      product_searching_id: stockSearchingId,
       url: availableProducts.url,
-      is_notified: false,
     };
   });
 }

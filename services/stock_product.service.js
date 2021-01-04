@@ -11,6 +11,7 @@ exports.findByProductSearchingId = async function findByProductSearchingId(
       .limit(1)
   )[0];
   return StockProduct.query()
+    .select("product_name", "product_price", "product_searching_id", "url")
     .where("product_searching_id", productSearchingId)
     .andWhere("is_notified", true)
     .andWhere("created_at", ">=", lastStockProduct.max);
