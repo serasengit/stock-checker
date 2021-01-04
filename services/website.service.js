@@ -57,13 +57,17 @@ async function buyPCComponentesAvailableProducts(url) {
   await page.click("#btnsWishAddBuy");
   await page.waitForSelector("#GTM-carrito-realizarPedidoPaso1", {
     visible: true,
+    timeout: 0,
   });
   await page.click("#GTM-carrito-realizarPedidoPaso1");
   console.log("Botón de compra");
   await page.waitForTimeout(3000);
   console.log("Botón de compra ::: Click");
 
-  await page.waitForSelector("#GTM-carrito-finalizarCompra");
+  await page.waitForSelector("#GTM-carrito-finalizarCompra", {
+    visible: true,
+    timeout: 0,
+  });
   await page.click("#pccom-conditions");
   await page.click("#GTM-carrito-finalizarCompra");
   await page.waitForNavigation({ timeout: 0 });
