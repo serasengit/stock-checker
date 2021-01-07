@@ -94,6 +94,29 @@ exports.execute = async function execute() {
             }
           } else {
             console.log("No hay productos disponibles");
+            const noAvailableProducts = getNoAvailableProducts(
+              stockSearching.id
+            );
+            // Retrieve old available products
+            const lastAvailableProducts = await stockProductsService.findByProductSearchingId(
+              stockSearching.id
+            );
+            if (
+              lastAvailableProducts.length === 0 ||
+              (lastAvailableProducts.length > 0 &&
+                JSON.stringify(noAvailableProducts) !==
+                  JSON.stringify(lastAvailableProducts))
+            ) {
+              emailService.sendEmail(
+                "NO HAY PRODUCTOS DE - " +
+                  stockSearching.product_searching +
+                  " EN " +
+                  stockSearching.website.name,
+                null
+              );
+              setIsNotifiedStockProducts(noAvailableProducts, true);
+              stockProductsService.save(noAvailableProducts);
+            }
           }
           console.log(
             "Búsqueda de stock de " +
@@ -125,4 +148,15 @@ function parseStockProducts(availableProducts, stockSearchingId) {
       url: availableProducts.url,
     };
   });
+}
+
+function getNoAvailableProducts(stockSearchingId) {
+  return [
+    {
+      product_name: "NO_PRODUCTS",
+      product_price: "0€",
+      product_searching_id: stockSearchingId,
+      url: "NO_PRODUCTS",
+    },
+  ];
 }

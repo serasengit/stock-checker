@@ -16,6 +16,18 @@ async function sendEmail(mail) {
   }
 }
 
+exports.sendEmail = async function (subject, body) {
+  const emailAddress = await configService.findByClave("email");
+  const emailPass = await configService.findByClave("email_pass");
+  const mail = new configMensaje.buildMail(
+    emailAddress[0].value,
+    emailPass[0].value,
+    subject,
+    body
+  );
+  sendEmail(mail);
+};
+
 exports.sendStockProductsEmail = async function (subject, stockProducts) {
   const emailAddress = await configService.findByClave("email");
   const emailPass = await configService.findByClave("email_pass");
