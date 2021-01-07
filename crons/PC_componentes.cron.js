@@ -36,87 +36,10 @@ exports.execute = async function execute() {
               "Los productos disponibles son: " +
                 JSON.stringify(availableProducts)
             );
-            const stockProducts = parseStockProducts(
-              availableProducts,
-              stockSearching.id
-            );
-            // Retrieve old available products
-            const lastAvailableProducts = await stockProductsService.findByProductSearchingId(
-              stockSearching.id
-            );
-            if (
-              lastAvailableProducts.length === 0 ||
-              (lastAvailableProducts.length > 0 &&
-                JSON.stringify(stockProducts) !==
-                  JSON.stringify(lastAvailableProducts))
-            ) {
-              try {
-                setIsNotifiedStockProducts(stockProducts, true);
-                await stockProductsService.save(stockProducts);
-                emailService.sendStockProductsEmail(
-                  stockSearching.website.name + " STOCK",
-                  stockProducts
-                );
-
-                if (stockProducts.length > 0) {
-                  const productToOrder = stockProducts[0];
-                  const productPrice = Number(
-                    productToOrder.product_price
-                      .replace(",", ".")
-                      .replace("€", "")
-                  );
-                  if (
-                    (!stockSearching.price_limit ||
-                      (stockSearching.price_limit &&
-                        productPrice <= stockSearching.price_limit)) &&
-                    (!stockSearching.product_filter_key ||
-                      (stockSearching.product_filter_key &&
-                        productToOrder.product_name.includes(
-                          stockSearching.product_filter_key
-                        )))
-                  ) {
-                    const orderConfirmation = await websiteService.buyStockProduct(
-                      productToOrder.url,
-                      stockSearching.website.name
-                    );
-                    if (orderConfirmation)
-                      emailService.sendOrderedProductEmail(
-                        productToOrder.product_name + " -  PEDIDO",
-                        orderConfirmation
-                      );
-                  }
-                }
-              } catch (err) {
-                console.log(err);
-                setIsNotifiedStockProducts(stockProducts, false);
-                stockProductsService.save(stockProducts);
-              }
-            }
+            handleStockProducts(availableProducts, stockSearching);
           } else {
             console.log("No hay productos disponibles");
-            const noAvailableProducts = getNoAvailableProducts(
-              stockSearching.id
-            );
-            // Retrieve old available products
-            const lastAvailableProducts = await stockProductsService.findByProductSearchingId(
-              stockSearching.id
-            );
-            if (
-              lastAvailableProducts.length === 0 ||
-              (lastAvailableProducts.length > 0 &&
-                JSON.stringify(noAvailableProducts) !==
-                  JSON.stringify(lastAvailableProducts))
-            ) {
-              emailService.sendEmail(
-                "NO HAY PRODUCTOS DE - " +
-                  stockSearching.product_searching +
-                  " EN " +
-                  stockSearching.website.name,
-                null
-              );
-              setIsNotifiedStockProducts(noAvailableProducts, true);
-              stockProductsService.save(noAvailableProducts);
-            }
+            handleNoStockProducts(stockSearching);
           }
           console.log(
             "Búsqueda de stock de " +
@@ -132,6 +55,90 @@ exports.execute = async function execute() {
     }
   }
 };
+
+async function handleStockProducts(availableProducts, stockSearching) {
+  const stockProducts = parseStockProducts(
+    availableProducts,
+    stockSearching.id
+  );
+  // Retrieve old available products
+  const lastAvailableProducts = await stockProductsService.findByProductSearchingId(
+    stockSearching.id
+  );
+  if (
+    lastAvailableProducts.length === 0 ||
+    (lastAvailableProducts.length > 0 &&
+      JSON.stringify(stockProducts) !== JSON.stringify(lastAvailableProducts))
+  ) {
+    try {
+      //Notify products
+      setIsNotifiedStockProducts(stockProducts, true);
+      await stockProductsService.save(stockProducts);
+      emailService.sendStockProductsEmail(
+        stockSearching.website.name + " STOCK",
+        stockProducts
+      );
+      if (stockProducts.length > 0) {
+        const productToOrder = stockProducts.sort((a, b) =>
+          a.product_price > b.product_price ? 1 : -1
+        )[0];
+
+        const productPrice = Number(
+          productToOrder.product_price.replace(",", ".").replace("€", "")
+        );
+        //Buy first product if prize is less than limit (stockProducts array is ordered by prize asc)
+        if (
+          (!stockSearching.price_limit ||
+            (stockSearching.price_limit &&
+              productPrice <= stockSearching.price_limit)) &&
+          (!stockSearching.product_filter_key ||
+            (stockSearching.product_filter_key &&
+              productToOrder.product_name.includes(
+                stockSearching.product_filter_key
+              )))
+        ) {
+          const orderConfirmation = await websiteService.buyStockProduct(
+            productToOrder.url,
+            stockSearching.website.name
+          );
+          if (orderConfirmation)
+            emailService.sendOrderedProductEmail(
+              productToOrder.product_name + " -  PEDIDO",
+              orderConfirmation
+            );
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      setIsNotifiedStockProducts(stockProducts, false);
+      stockProductsService.save(stockProducts);
+    }
+  }
+}
+
+async function handleNoStockProducts(stockSearching) {
+  const noAvailableProducts = getNoAvailableProducts(stockSearching.id);
+  // Retrieve old available products
+  const lastAvailableProducts = await stockProductsService.findByProductSearchingId(
+    stockSearching.id
+  );
+  if (
+    lastAvailableProducts.length === 0 ||
+    (lastAvailableProducts.length > 0 &&
+      JSON.stringify(noAvailableProducts) !==
+        JSON.stringify(lastAvailableProducts))
+  ) {
+    emailService.sendEmail(
+      "NO HAY PRODUCTOS DE - " +
+        stockSearching.product_searching +
+        " EN " +
+        stockSearching.website.name,
+      null
+    );
+    setIsNotifiedStockProducts(noAvailableProducts, true);
+    stockProductsService.save(noAvailableProducts);
+  }
+}
 
 function setIsNotifiedStockProducts(stockProducts, isNotified) {
   stockProducts.forEach(
