@@ -19,36 +19,39 @@ exports.execute = async function execute() {
             " at: " +
             new Date()
         );
-        cron.schedule(stockSearching.cron_pattern, async function () {
-          const availableProducts = await websiteService.getPage(
-            stockSearching.url,
-            stockSearching.website.name
-          );
-          console.log(
-            "Búsqueda de stock de " +
-              stockSearching.website.name +
-              " - " +
-              stockSearching.product_searching +
-              " ::START"
-          );
-          if (availableProducts && availableProducts.length > 0) {
-            console.log(
-              "Los productos disponibles son: " +
-                JSON.stringify(availableProducts)
+        const job = cron.schedule(
+          stockSearching.cron_pattern,
+          async function () {
+            const availableProducts = await websiteService.getPage(
+              stockSearching.url,
+              stockSearching.website.name
             );
-            handleStockProducts(availableProducts, stockSearching);
-          } else {
-            console.log("No hay productos disponibles");
-            handleNoStockProducts(stockSearching);
+            console.log(
+              "Búsqueda de stock de " +
+                stockSearching.website.name +
+                " - " +
+                stockSearching.product_searching +
+                " ::START"
+            );
+            if (availableProducts && availableProducts.length > 0) {
+              console.log(
+                "Los productos disponibles son: " +
+                  JSON.stringify(availableProducts)
+              );
+              handleStockProducts(availableProducts, stockSearching, job);
+            } else {
+              console.log("No hay productos disponibles");
+              handleNoStockProducts(stockSearching);
+            }
+            console.log(
+              "Búsqueda de stock de " +
+                stockSearching.website.name +
+                " - " +
+                stockSearching.product_searching +
+                " ::END"
+            );
           }
-          console.log(
-            "Búsqueda de stock de " +
-              stockSearching.website.name +
-              " - " +
-              stockSearching.product_searching +
-              " ::END"
-          );
-        });
+        );
       }
     } catch (err) {
       console.log(err);
@@ -56,7 +59,7 @@ exports.execute = async function execute() {
   }
 };
 
-async function handleStockProducts(availableProducts, stockSearching) {
+async function handleStockProducts(availableProducts, stockSearching, job) {
   const stockProducts = parseStockProducts(
     availableProducts,
     stockSearching.id
@@ -97,10 +100,15 @@ async function handleStockProducts(availableProducts, stockSearching) {
                 stockSearching.product_filter_key
               )))
         ) {
+          //Product to buy found -> Stop cron job
+          job.stop();
           const orderConfirmation = await websiteService.buyStockProduct(
             productToOrder.url,
             stockSearching.website.name
           );
+          if (!orderConfirmation) job.stop();
+          //Restart cron job
+          job.start();
           if (orderConfirmation)
             emailService.sendOrderedProductEmail(
               productToOrder.product_name + " -  PEDIDO",

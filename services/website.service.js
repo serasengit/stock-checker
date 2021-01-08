@@ -22,35 +22,50 @@ exports.getPage = async function getPage(url, website) {
 
 exports.buyStockProduct = async function buyStockProduct(url, website) {
   var orderConfirmation;
-  let errTimes = 0;
-  do {
-    try {
-      switch (website) {
-        case PC_COMPONENTES:
-          orderConfirmation = await buyPCComponentesAvailableProducts(url);
-          break;
-        case AMAZON_SPAIN:
-          //availableProducts = buyAmazonSpainAvailableProducts(url);
-          break;
-      }
-      errTimes = 0;
-    } catch (err) {
-      errTimes++;
-      console.log(err + " :: Time" + errTimes);
-    }
-  } while (errTimes < 20 && errTimes > 0);
+
+  switch (website) {
+    case PC_COMPONENTES:
+      orderConfirmation = await buyPCComponentesAvailableProducts(url);
+      break;
+    case AMAZON_SPAIN:
+      //availableProducts = buyAmazonSpainAvailableProducts(url);
+      break;
+  }
 
   return orderConfirmation;
 };
 
 async function buyPCComponentesAvailableProducts(url) {
   var orderConfirmation;
+  let errTimes = 0;
   const browser = await puppeteer.launch({
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
   const page = await browser.newPage();
   //Login
-  await page.goto("https://www.pccomponentes.com/login", { timeout: 0 });
+  console.log("Website Login Init");
+  await loginToPCComponentes(page, url);
+  console.log("Website Login Success");
+  // Product buying
+  do {
+    console.log("Product buying- Init");
+    try {
+      await buyPCComponentesProduct(page);
+      console.log("Product buying- end");
+      orderConfirmation = await page.screenshot({ path: "order.png" });
+      errTimes = 0;
+    } catch (err) {
+      errTimes++;
+      console.log(err + " :: Time " + errTimes);
+    }
+  } while (errTimes < 300 && errTimes > 0);
+  browser.close();
+  console.log("Browser Closed");
+  return orderConfirmation;
+}
+
+async function loginToPCComponentes(page, url) {
+  await page.goto("https://www.pccomponentes.com/login");
   const pcComponentesUser = await configService.findByClave(
     "pc_componentes_user"
   );
@@ -60,27 +75,31 @@ async function buyPCComponentesAvailableProducts(url) {
   await page.type("input[name=username]", pcComponentesUser[0].value);
   await page.type("input[name=password]", pcComponentesPass[0].value);
   await page.click("button[data-cy=log-in]");
-  await page.waitForNavigation({ timeout: 0 });
+  await page.waitForNavigation();
   await page.goto(url);
+}
+
+async function buyPCComponentesProduct(page) {
+  console.log("Buy button click - Init");
   await page.click("#btnsWishAddBuy");
   await page.waitForSelector("#GTM-carrito-realizarPedidoPaso1", {
     visible: true,
-    timeout: 0,
+    timeout: 2000,
   });
+  console.log("Buy button click - End");
+  console.log("Order product button click - Init");
   await page.click("#GTM-carrito-realizarPedidoPaso1");
-  console.log("Botón de compra");
-  await page.waitForTimeout(3000);
-  console.log("Botón de compra ::: Click");
+  await page.waitForTimeout(2000);
+  console.log("Order product button click - End");
   await page.waitForSelector("#GTM-carrito-finalizarCompra", {
     visible: true,
-    timeout: 0,
+    timeout: 2000,
   });
   await page.click("#pccom-conditions");
+  console.log("Finish order button click - Init");
   await page.click("#GTM-carrito-finalizarCompra");
-  await page.waitForNavigation({ timeout: 0 });
-  orderConfirmation = await page.screenshot({ path: "order.png" });
-  browser.close();
-  return orderConfirmation;
+  await page.waitForNavigation();
+  console.log("Finish order button click - End");
 }
 
 function getAvailableProducts(html, website) {
