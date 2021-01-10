@@ -44,13 +44,13 @@ async function buyPCComponentesAvailableProducts(url) {
   const page = await browser.newPage();
   //Login
   console.log("Website Login Init");
-  await loginToPCComponentes(page, url);
+  await loginToPCComponentes(page);
   console.log("Website Login Success");
   // Product buying
   do {
     console.log("Product buying- Init");
     try {
-      await buyPCComponentesProduct(page);
+      await buyPCComponentesProduct(page,url);
       console.log("Product buying- end");
       orderConfirmation = await page.screenshot({ path: "order.png" });
       errTimes = 0;
@@ -64,7 +64,7 @@ async function buyPCComponentesAvailableProducts(url) {
   return orderConfirmation;
 }
 
-async function loginToPCComponentes(page, url) {
+async function loginToPCComponentes(page) {
   await page.goto("https://www.pccomponentes.com/login");
   const pcComponentesUser = await configService.findByClave(
     "pc_componentes_user"
@@ -76,10 +76,10 @@ async function loginToPCComponentes(page, url) {
   await page.type("input[name=password]", pcComponentesPass[0].value);
   await page.click("button[data-cy=log-in]");
   await page.waitForNavigation();
-  await page.goto(url);
 }
 
-async function buyPCComponentesProduct(page) {
+async function buyPCComponentesProduct(page,url) {
+  await page.goto(url);
   console.log("Buy button click - Init");
   await page.click("#btnsWishAddBuy");
   await page.waitForSelector("#GTM-carrito-realizarPedidoPaso1", {
