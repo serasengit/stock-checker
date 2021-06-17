@@ -13,9 +13,9 @@ exports.getPage = async function getPage(url, website) {
     const res = await axios.get(url);
     const availableProducts = getAvailableProducts(res.data, website);
     return availableProducts;
-  } catch {
+  } catch (err) {
     console.error(
-      `ERROR: An error occurred while trying to fetch the URL: ${url}`
+      `ERROR: An error occurred while trying to fetch the URL: ${url} -> ${err}`
     );
   }
 };
@@ -50,7 +50,7 @@ async function buyPCComponentesAvailableProducts(url) {
   do {
     console.log("Product buying- Init");
     try {
-      await buyPCComponentesProduct(page,url);
+      await buyPCComponentesProduct(page, url);
       console.log("Product buying- end");
       orderConfirmation = await page.screenshot({ path: "order.png" });
       errTimes = 0;
@@ -78,7 +78,7 @@ async function loginToPCComponentes(page) {
   await page.waitForNavigation();
 }
 
-async function buyPCComponentesProduct(page,url) {
+async function buyPCComponentesProduct(page, url) {
   await page.goto(url);
   console.log("Buy button click - Init");
   await page.click("#btnsWishAddBuy");
